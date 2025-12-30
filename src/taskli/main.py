@@ -9,12 +9,17 @@ lastId = j.lastId()
 
 
 @app.command()
-def add(desc: Annotated[str, typer.Argument()]):  
+def add(desc: Annotated[str, typer.Argument()]):
+    ''' adds a new task to the json file
+    '''  
     j.saveToJson(task(lastId+1,desc))
     lst()
 
 @app.command()
 def mark(state: Annotated[status,typer.Argument()], tid:Annotated[int,typer.Argument()]):
+    """
+        change the status of any task
+    """
     gotId = j.FindTaskId(tid)
     if gotId != -1:
         alltasks = j.openJson()
@@ -25,6 +30,9 @@ def mark(state: Annotated[status,typer.Argument()], tid:Annotated[int,typer.Argu
 
 @app.command()
 def lst(state: Annotated[status, typer.Argument()]=None):
+    """
+        displays a table for the tasks in the database
+    """
     alltasks = j.openJson()
     try:
         headers = list(alltasks[0].keys())
@@ -49,6 +57,7 @@ def lst(state: Annotated[status, typer.Argument()]=None):
 
 @app.command()
 def update(tid: Annotated[int,typer.Argument()], desc: Annotated[str,typer.Argument()]):
+    ''' Update a task, i.e change it's description essentially.'''
     alltasks = j.openJson()
     try:
         taskindex = j.FindTaskId(tid)
@@ -63,6 +72,7 @@ def update(tid: Annotated[int,typer.Argument()], desc: Annotated[str,typer.Argum
 
 @app.command()
 def delete(tid: Annotated[int, typer.Argument()]):
+    ''' delete a specific task using its tid'''
     alltasks = j.openJson()
     try:
         index = j.FindTaskId(tid,alltasks)
