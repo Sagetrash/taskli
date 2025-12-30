@@ -1,3 +1,7 @@
 .venv
 __pycache__
 tasks.json
+.uv/
+dist/
+build/
+*.egg-info/

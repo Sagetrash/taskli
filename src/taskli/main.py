@@ -1,6 +1,6 @@
 import typer
-import json_helpers as j
-from classes.task import task, status
+from . import json_helpers as j
+from .classes.task import task, status
 from typing import Annotated
 from datetime import datetime
 

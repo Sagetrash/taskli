@@ -1,4 +1,4 @@
-from classes.task import task
+from .classes.task import task
 import json, os
 directory = '.'
 path = f"{directory}/tasks.json"
