@@ -3,7 +3,7 @@ import json, os
 directory = '.'
 path = f"{directory}/tasks.json"
 
-def openJson():
+def openJson()->list:
     if os.path.exists(f"{path}"):
         try:
             with open(path,'r') as f:
@@ -13,20 +13,22 @@ def openJson():
             if input("error decoding file, do you want to make a new tasks.json file? (y/n): ") =='y':
                 alltasks = []
                 createJson(alltasks)
-                return openJson()
+                return []
             else:
                 print("no problem! hope you find your file!")
     else:
         createJson()
-        return openJson()
+        return []
 
 def saveToJson(task:task):
     alltasks = openJson()
-    if FindTaskId(task.taskdict['id'],alltasks) == -1:
+    try:
+        FindTaskId(task.taskdict["id"])
+        print("task already present")
+    except IndexError:
         alltasks.append(task.taskdict)
+    finally:
         createJson(alltasks)
-    else:
-        "task already exists"
 
     
 def setDir(setpath:str):
@@ -39,7 +41,7 @@ def createJson(arg = None):
             try:
                 with open(path,'w') as f:
                     alltasks = []
-                    json.dump(alltasks,f)
+                    json.dump(alltasks,f,indent=4)
             except json.JSONDecodeError as e:
                 print(f"error saving file {e}")
         else:
@@ -47,17 +49,16 @@ def createJson(arg = None):
     else:
         try:
             with open(path,'w') as f:
-                json.dump(arg,f)
+                json.dump(arg,f,indent=4)
         except json.JSONDecodeError as e:
             print(f"error saving file {e}")
 
-def FindTaskId(tid:int,alltasks:list=openJson()):
+def FindTaskId(tid:int,alltasks:list=openJson())-> int:
     for i in alltasks:
         if i['id'] == tid:
             # print("task already exists")
             return alltasks.index(i)
-    # print("creating new task")
-    return -1
+    raise IndexError    
 
 def lastId():
     try:
