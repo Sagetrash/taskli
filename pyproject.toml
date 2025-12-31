@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "taskli"
 version = "0.1.0"
 description = "a simple cli todo list manager"
-authors = ["sagetrash <sagetrash@proton.me>"]
+authors = [{name = "Sagetrash"},{email="sagetrash1435@proton.me"}]
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

@@ -1,5 +1,5 @@
 # Taskli
-taskli or `task-li` is a simple python cli app to maintain a simple no bs todo list
+taskli or `task-li` is a simple python cli app to maintain a simple no bs todo list for a [project from roadmap.sh](https://roadmap.sh/projects/task-tracker)
 
 ## Installation
 1. Using pip and a virtual environment
