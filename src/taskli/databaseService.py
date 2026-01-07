@@ -5,10 +5,10 @@ from enum import Enum
 
 class Status(str,Enum):
     TODO = "todo"
-    IN_PROGRESS = "in progress"
+    IN_PROGRESS = "in-progress"
     DONE = "done"
 
-class database:
+class Database:
     def __init__(self, db_path:Path = None):
         if db_path is None:
             db_path = Path(__file__).resolve().parent.parent.parent/"data"/"taskli.db"
@@ -25,7 +25,7 @@ class database:
             CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             desc TEXT NOT NULL,
-            status CHECK( status in ('todo','in progress','done') ) DEFAULT 'todo',
+            status CHECK( status in ('todo','in-progress','done') ) DEFAULT 'todo',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
@@ -34,14 +34,16 @@ class database:
             curs = self.conn.cursor()
             curs.execute(query)
 
-    def getTasks(self):
-        query = '''
-        SELECT * FROM tasks;
-        '''
+    def getTasks(self, status:Status = None):
+        query = "SELECT * FROM tasks"
+        params = []
+        if status:
+            query += (" WHERE status = ?")
+            params = (status.value,)
         try:
             with self.conn:
                 curs = self.conn.cursor()
-                curs.execute(query)
+                curs.execute(query,params)
                 tasks = curs.fetchall()
                 rtn = []
                 for i in tasks:
@@ -102,3 +104,5 @@ class database:
         except sql.Error as e:
             print(f"{e}")
 
+if __name__ == "__main__":
+    pass
