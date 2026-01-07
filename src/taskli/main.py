@@ -1,89 +1,50 @@
 import typer
-from . import json_helpers as j
-from .classes.task import task, status
 from typing import Annotated
-from datetime import datetime
+from taskli import Database, Status
 
 app = typer.Typer()
-lastId = j.lastId()
+db = Database()
 
-
-@app.command()
-def add(desc: Annotated[str, typer.Argument()]):
-    ''' adds a new task to the json file
-    '''  
-    j.saveToJson(task(lastId+1,desc))
-    lst()
-
-@app.command()
-def mark(state: Annotated[status,typer.Argument()], tid:Annotated[int,typer.Argument()]):
-    """
-        change the status of any task
-    """
-    gotId = j.FindTaskId(tid)
-    if gotId != -1:
-        alltasks = j.openJson()
-        alltasks[gotId]["status"] = state
-        alltasks[gotId]["last_updated"] = datetime.now().ctime()
-        j.createJson(alltasks)
-        print(f"marked task {tid}  as {state}")
+def printTable(status: Status = None):
+    tasks = db.getTasks(status)
+    tmplt = "{:<4}|{:<30}|{:<15}"
+    header = tmplt.format("ID","DESCRIPTION", "STATUS") #header
+    print("-"*len(header))
+    print(header)
+    print("-"*len(header))
+    for i in tasks:
+        print(tmplt.format(i['id'],i['desc'],i['status']))
+    print("-"*len(header))
 
 @app.command()
-def lst(state: Annotated[status, typer.Argument()]=None):
-    """
-        displays a table for the tasks in the database
-    """
-    alltasks = j.openJson()
-    try:
-        headers = list(alltasks[0].keys())
-        for k in headers:
-            print(k,end=" | ")
-        print("")
-        if state is None:
-            for i in alltasks:
-                data = list(i.values())
-                for k in data:
-                    print(k,end=" | ")
-                print("")
-        else:
-            for i in alltasks:
-                if i["status"] == state:
-                    for k in list(i.values()):
-                        print(k,end=' | ')
-                    print("")
-    except IndexError:
-        None
-
+def add(taskdesc: Annotated[str, typer.Argument(help="the task description")]):
+    ''' ADD a new task '''
+    db.addTask(taskdesc)
+    printTable()
+    
+@app.command()
+def delete(taskid: Annotated[str, typer.Argument(help="Enter the task's id")]):
+    ''' DELETE a task using its id '''
+    db.deleteTask(taskid)
+    printTable()
 
 @app.command()
-def update(tid: Annotated[int,typer.Argument()], desc: Annotated[str,typer.Argument()]):
-    ''' Update a task, i.e change it's description essentially.'''
-    alltasks = j.openJson()
-    try:
-        taskindex = j.FindTaskId(tid)
-        alltasks[taskindex]["desc"] = desc
-        alltasks[taskindex]["last_updated"] = datetime.now().ctime()
-        j.createJson(alltasks)
-        lst()
-    except IndexError:
-        print("enter valid id")
-        lst()
-
+def update(taskid: Annotated[int, typer.Argument(help="Enter the Task's id")],taskdesc: Annotated[str,typer.Argument(help="new DESCRIPTION for the task")]):
+    ''' update/chanfe a task's descritption '''
+    db.updateDesc(taskdesc,taskid)
+    printTable()
 
 @app.command()
-def delete(tid: Annotated[int, typer.Argument()]):
-    ''' delete a specific task using its tid'''
-    alltasks = j.openJson()
-    try:
-        index = j.FindTaskId(tid,alltasks)
-        deleted = alltasks.pop(index)   
-        for i in range(index,len(alltasks)):
-            alltasks[i]["id"] -= 1
-        j.createJson(alltasks)
-        print(f"deleted task {deleted}")
-        lst()
-    except IndexError as e:
-        print("invalid taskid")
+def mark(taskid: Annotated[int,typer.Argument(help="Enter the task's id")],status: Annotated[Status,typer.Argument(help="change the status of a given task")]):
+    ''' Update/Change a task's status [todo,done,in progress]'''
+    db.updateStatus(status,taskid)
+    printTable()
+
+@app.command()
+def list(status: Annotated[Status,typer.Argument(help="filter tasks by status")]=None):
+    ''' show a table of tasks '''
+    printTable(status)
+
 
 if __name__ == "__main__":
     app()
