@@ -5,3 +5,4 @@ tasks.json
 dist/
 build/
 *.egg-info/
+*.db
